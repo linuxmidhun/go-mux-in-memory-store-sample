@@ -20,15 +20,17 @@ func Get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(http.StatusInternalServerError)
 	} else {
-		d, err := data.Get(cID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(http.StatusInternalServerError)
+		if cID == 0 {
+			log.Println("looking for invalid index '0'")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(http.StatusBadRequest)
 		} else {
-			if d.ID == 0 {
-				w.WriteHeader(http.StatusNotFound)
-				json.NewEncoder(w).Encode(http.StatusNotFound)
+			d, err := data.Get(cID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(http.StatusInternalServerError)
 			} else {
+				w.WriteHeader(http.StatusOK)
 				json.NewEncoder(w).Encode(d)
 			}
 		}
@@ -46,9 +48,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(http.StatusInternalServerError)
 	} else {
 		if data.ID == 0 {
-			w.WriteHeader(http.StatusPreconditionFailed)
-			json.NewEncoder(w).Encode(http.StatusPreconditionFailed)
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(http.StatusInternalServerError)
 		} else {
+			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(data)
 		}
 	}
